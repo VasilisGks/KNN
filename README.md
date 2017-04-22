@@ -1,2 +1,2 @@
 # KNN
-Implementation of KNN algorithm with MPI communication protocol , for the unit cube.
+Parallel and serial implementation of KNN algorithm using MPI communication protocol , for unit cube.
