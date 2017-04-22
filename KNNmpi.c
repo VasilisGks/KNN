@@ -292,12 +292,12 @@ for(j=0;j<(totalNum);j++){
 		for(i=0;i<col;i=i+3){
 			if((rank-1)>0){
 				fdist=getDistance(rcvbuf[(rank-1)*col+i],forSend[(rank-1)*col+i+1],rcvbuf[(rank-1)*col+(i+2)],arr[j]);
-				if((fdist<(arr[j].maxDist))&&(fdist!=0))    // !! Ensure that its not checking point with its self (!)
+				if((fdist<(arr[j].maxDist))&&(fdist!=0))    // !! Ensure not to check current point with its self (!)
 				arr[j].maxDist=fdist;
 			}
 			if((rank+1)<numTasks){
 				fdist=getDistance(rcvbuf[(rank+1)*col+i],rcvbuf[(rank+1)*col+(i+1)],rcvbuf[(rank+1)*col+(i+2)],arr[j]);
-				if((fdist<(arr[j].maxDist))&&(fdist!=0))    // !! Ensure that its not checking point with its self (!)
+				if((fdist<(arr[j].maxDist))&&(fdist!=0))  
 				arr[j].maxDist=fdist;
 			}
 		}
