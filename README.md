@@ -3,7 +3,7 @@ Serial and Parallel(using MPI communication protocol) implementation of KNN, dis
 
 We will assume that we have two set of points Q and C  came from uniform distribution (inside the three dimensional unit cube)  containing Nq and Nc points respectively.
 
-Searching for nearest neighbour ,for a given point q (set Q) and a distance measure D : Find a point c (set C) such that D(q,c) is minimum.
+Searching for nearest neighbour, for a given point q (set Q) and a distance measure D: Find a point c (set C) such that D(q,c) is minimum.
 
 <br />Run program with the following command:  ./KNNmpi n m k  Nc Nq
 <br />
