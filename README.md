@@ -7,6 +7,6 @@ Searching for nearest neighbour, for a given point q (set Q) and a distance meas
 
 <br />Run program with the following command:  ./KNNmpi n m k  Nc Nq
 <br />
-<br />n , m , k : grid dimensions 2<sup>[12:16]</sup> 
-<br />Nc, Nq : Size for each point set 2<sup>[17:22]</sup>
+<br />n , m , k - grid dimensions: 2<sup>[12:16]</sup> 
+<br />Nc, Nq - Size for each point set: 2<sup>[17:22]</sup>
 
