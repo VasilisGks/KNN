@@ -402,7 +402,7 @@ int procPos;  //process of box to be sent
 //Allocation of 2d array that stores points to be sent to other processes
 
 int cx=arr[j].bx;
-int cy=arr[j].by;				//&&&&&&&&INFINITE LOOP KAPOY!!!!!!! 
+int cy=arr[j].by;				
 int cz=arr[j].bz;int num;
  //if((rank==0)&&(cz>k/2+2))
  //printf(" getting point %d %d %d from main \n",cx,cy,cz);
@@ -520,11 +520,11 @@ void measure2(point *arr,point *a[n][m][k],int counter[n][m][k],int px,int py,in
 			}
 			}
 		}
-		//If points belongs to current process....
+		//If points belongs to current process
 		//******************************************************************
 		
 		
-	//	else (Vlepw 2d array , paw stin i-grammi toy process poy anikei to koytaki.Elegxw ola ta simeia poy exw lavei
+	//	
 	//pp=getProc(px,py,pz.proc) . Go to array[pp][i]...Dist
 			
 	}
@@ -578,7 +578,7 @@ float *neighbours(point *arr,int counter[n][m][k],int n,int m,int k,int pnum,int
 			if(j!=rank){
 				MPI_Isend(&forSend[j*column],1,rowtype,j,0,MPI_COMM_WORLD,&request);
 				MPI_Irecv((recvBuf+column*j),1,rowtype,j,MPI_ANY_TAG,MPI_COMM_WORLD,&request);	//Receive starts ,where sending process' address 
-				//test printf (ensure that points received)
+				//test printf (ensure that points have been received)
 		//		if(rank==0){	
 		//		for(i=0;i<250;i++){	
 		//			printf("%f bla bla\n",recvBuf[1*col+i]);				
