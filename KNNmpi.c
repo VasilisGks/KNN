@@ -69,9 +69,8 @@ float tx,ty,tz;  //Grid's boxes coordinates
 int size=((Nc+Nq)/2)-1;
 int	pointNum=(Nc+Nq)/numTasks;
 
-point *arr=(point *)malloc((Nc+Nq+128)*sizeof(point));   //Allocate memory for local array holding points from current process
-
-//set number 1	1st half=Q type of points,2nd half = C type of points
+point *arr=(point *)malloc((Nc+Nq+128)*sizeof(point));  
+//set 1 for 1st half=Q type of points,2nd half = C type of points
 point *a[n][m][k];
 int counter[n][m][k];
 for(i=0;i<n;i++){
@@ -90,7 +89,7 @@ for(i=0;i<pointNum;i++){
   sum+=1;
   tmp=((float)rand())/(RAND_MAX);
   arr[i].x=tmp;
-  tmp=((float)rand())/(RAND_MAX);        //Store random values (uniform distribution) for 3 coordinates of each point
+  tmp=((float)rand())/(RAND_MAX);        //Store random values coming from uniform distribution for coords of each point
   arr[i].y=tmp;
   tmp=((float)rand())/(RAND_MAX);
   arr[i].z=tmp;
@@ -105,7 +104,7 @@ for(i=0;i<pointNum;i++){
   float k1=(float)k;
 
   
-  //Store each point in box that belongs (in unit cube)
+  //Store each point in its box (unit cube)
   //x coordinate
 if(fmod((arr[i].x),(1.0/n1))==0){
 	if(arr[i].x<(1.0/n1)){
@@ -143,11 +142,11 @@ else{
 else{
 	tz=((arr[i].z)/(1.0/k1));
 } 
-int t1=(int)tx; //coordinates of box(in grid) that current
-int t2=(int)ty; //point belongs
-int t3=(int)tz;  //increasing counter(frequency..)
+int t1=(int)tx; //coordinates of box (grid) that current point belongs
+int t2=(int)ty; 
+int t3=(int)tz;  
 
-//Passin value of points in box' array of structs 
+//Passing value of points in box' array of structs 
 arr[i].bx=t1;
 arr[i].by=t2;
 arr[i].bz=t3;
@@ -200,28 +199,28 @@ MPI_Type_commit(&mpi_point_type);
   //MPI_Type_indexed(3, blocklengths, o, type2, &type1);
   //  MPI_Type_commit(&type1);
 point recBuf,tBuf;
-int cout0=0,tag=221,tmpCout;  //tmpCout holds new number of cells for each grid's box
+int cout0=0,tag=221,tmpCout;  //tmpCout holds the new number of cells for each grid's box
 int cox,coy,coz,flag,newCout;
 
 //****************************************************************************************************************************
 //****************************************************************************************************************************
 //****************************************************************************************************************************
-//Sending and receiving points from one process to another
+//Sending and receiving points between processes
 
 for(i=0;i<pointNum;i++){
   int proc;
-  proc=getProc(arr[i].bx,arr[i].by,arr[i].bz,numTasks,n,m,k);//Get Process that each point(of current process) belongs..
-  arr[i].process=proc;  //get process number for each point of current process
+  proc=getProc(arr[i].bx,arr[i].by,arr[i].bz,numTasks,n,m,k);//Get the number of process that each point(of current process) belongs
+  arr[i].process=proc;  //get process number for each point for the current process
   
-  if(proc!=rank){    //If point of this process dont match
-  	point tm=arr[i];	//area criteria for current process..Send to right process
+  if(proc!=rank){    
+  	point tm=arr[i];	
   	MPI_Isend(&tm,1,mpi_point_type,proc,0,MPI_COMM_WORLD,&req[0]);
   }
   
   while(1){
   	MPI_Iprobe(MPI_ANY_SOURCE,MPI_ANY_TAG,MPI_COMM_WORLD,&flag,&status[0]);
-  	if(!flag) break; //if message had not arrived..break from  
-  				//infin. loop
+  	if(!flag) break; //if message had not arrived..break from the infinite loop
+  				
   	MPI_Irecv(&recBuf,1,mpi_point_type,MPI_ANY_SOURCE,MPI_ANY_TAG,MPI_COMM_WORLD,&req[0]);
   	arr[pointNum+cout0]=recBuf;
    
@@ -232,7 +231,7 @@ for(i=0;i<pointNum;i++){
 
     }
     
-  	cout0+=1; 					//increase counter of array after each point receive
+  	cout0+=1;                             //increase counter of array after each point receive
   	tmpCout=counter[recBuf.bx][recBuf.by][recBuf.bz];
   	((a[recBuf.bx][recBuf.by][recBuf.bz])[tmpCout])=recBuf;
   	counter[recBuf.bx][recBuf.by][recBuf.bz]+=1;
@@ -241,7 +240,7 @@ for(i=0;i<pointNum;i++){
   
   }
 }//end for
-//*******************************************************************************new code*******************************************************************************
+//*************************************************************************************************************************************************
 //****************************************************************************************************************************
 //****************************************************************************************************************************
 //****************************************************************************************************************************
@@ -257,19 +256,19 @@ point *res;
 float fdist;
 int row=numTasks;int totalNum;
 
-int col=Nq+256;  //Size for possible candidates to send in each other process
+int col=Nq+256;  //Number of candidates to send
 
 int *sendCout=malloc(numTasks*sizeof(int));
 for(i=0;i<numTasks;i++){
 	sendCout[i]=0;}
 float *forSend;
-if((forSend=(float *)malloc(numTasks*col*sizeof(float)))==NULL){ // 2d array stored in 1d (points sent between processes) ,1 neighbour..(3 FLOATS PER POINT)!!!!
+if((forSend=(float *)malloc(numTasks*col*sizeof(float)))==NULL){ // 2d array stored in 1d (points sent between processes) ,1 neighbour(3 FLOATS PER POINT)
 	printf("NOT ENOUGH MEMORY \n");
 	exit(1);
 }
 
 float *rcvbuf;
-if((rcvbuf=(float *)malloc(numTasks*col*sizeof(float)))==NULL){ // 2d array stored in 1d (points sent between processes) ,1 neighbour..(3 FLOATS PER POINT)!!!!
+if((rcvbuf=(float *)malloc(numTasks*col*sizeof(float)))==NULL){ // 2d array stored in 1d (points sent between processes) ,1 neighbour(3 FLOATS PER POINT)
 	printf("NOT ENOUGH MEMORY \n");
 	exit(1);
 }
@@ -283,7 +282,7 @@ int coutt=0;
 for(j=0;j<(totalNum);j++){
 	if((arr[j].type=1)&&(arr[j].process==rank)){	
 		
-	//First checking points that contains our local array
+	//First checking points that contain our local array
 	measure(arr,a,counter,n,m,k,j,row,col,sendCout,numTasks);//Function for finding (LOCAL)  min distance(min distance return)
 	
 	
@@ -304,7 +303,7 @@ for(j=0;j<(totalNum);j++){
 	}
 	
  
-  //RESULT PRINTING (FOR RANK=0) .MANUAL CHANGE FOR PRINTING FOR ALL PROCESSES
+  //RESULT PRINTING (FOR RANK=0). MANUAL CHANGE FOR PRINTING FOR ALL PROCESSES
  	if(rank==0){
 	if(arr[j].maxDist!=INIT_MINDIST)
 	printf("FOR RANK : %d , MIN.DISTANCE OF POINT %f %f %f  is %f  .NEIGHBOUR IS : %f %f %f \n",rank,arr[j].x,arr[j].y,arr[j].z,arr[j].maxDist,arr[j].nbx,arr[j].nby,arr[j].nbz	);
@@ -316,8 +315,6 @@ for(j=0;j<(totalNum);j++){
 MPI_Barrier(MPI_COMM_WORLD);
 if(rank==0)
 printf("FINISHED\n");
-
-//***********************start new code send-receive for measure
 
 
 if(rank==0)  {
@@ -364,15 +361,14 @@ else
 return 1;
 }
 
-if((pnum>2)&&(pnum<32)){  //minimum value of k(grid's coord) is 2^4 so at least
+if((pnum>2)&&(pnum<32)){  //minimum value of k(grid's coord) is 2^4 so at least one plane(in z axis) will be available for each process
 temp=k/pnum; //Distance between boxes in grid's k dimension (z axis)
-//one plane(in z axis)will be available for each process
 return(bz/temp);  // Process that given point belongs
 }
 //	*****************************************************
 if(pnum==32){
 temp=k/16;   //distance between process area,in z axis
-if(by>(m/2))	//in X-axis,process cut the area  (16,16)
+if(by>(m/2))	//in X-axis, cut the area  (16,16)
 return((pnum/2)+((bz)/temp)); //Process number` start counting from zero (0)
 else
 return((bz)/temp);
@@ -380,9 +376,9 @@ return((bz)/temp);
 if(pnum==64){
 temp=k/16;
 if((by)<(m/4))
-	return((bz)/temp);			//Divides grid in 4 equal pieces
+	return((bz)/temp);			//Divides grid in 4 equal grids
 else if((by)<(m/2))					//in y axis(m size) of grid
-	return(((bz)/temp)+(pnum/4));	//and as before in z axis(k size of grid)
+	return(((bz)/temp)+(pnum/4));	//Consequently in z axis(k size of grid)
 else if((by)<(0.75*m))
 	return(((bz)/temp)+(pnum/2));
 else
@@ -392,14 +388,13 @@ else
 }
 //********************************************************************************************************
 
-//function that calculates neighbours and minimum distance for current point given 
-//It looks in same box of grid,  and in ALL 27 neighbour boxes
+//Calculation of the neighbours and minimum distance for current point given. 
+//It looks in the same box of grid,  and in 27 neighbour boxes
 
 void measure(point *arr,point *a[n][m][k],int counter[n][m][k],int n,int m,int k,int j,int column,int row,int *sendCout,int numtasks){
 int flag2,numb,tmpx,tmpy,tmpz=0,i;
 float dist;
-int procPos;  //process of box to be sent
-//Allocation of 2d array that stores points to be sent to other processes
+int procPos;  //process of the box to be sent
 
 int cx=arr[j].bx;
 int cy=arr[j].by;				
@@ -420,7 +415,7 @@ for(i=0;i<maxC;i++){
 	}
 }
 
-	//CHECKING if our box is in-bounds . If yes ,look for neighbours in those neighour boxes
+	//Check if current box is in-bounds. If so, look for neighbours in those neighour boxes
 	
  if((cx>=1) || (cx<n-1)){
 	if(cx>=1){		
@@ -502,8 +497,8 @@ for(i=0;i<maxC;i++){
 
 }//end measure
 
-//This function computes distance between our current point running in loop (main code) and those from neighbours' boxes 
-// !!!					Called from measure function
+//This function computes the distance between our current point running in loop and those from neighbours' boxes 
+//Called from measure function
 
 void measure2(point *arr,point *a[n][m][k],int counter[n][m][k],int px,int py,int pz,int j,int column,int row,int *sendCout,int numtasks,int n,int m,int k){
 	int numb,i,procPos;
@@ -520,25 +515,19 @@ void measure2(point *arr,point *a[n][m][k],int counter[n][m][k],int px,int py,in
 			}
 			}
 		}
-		//If points belongs to current process
-		//******************************************************************
-		
-		
-	//	
-	//pp=getProc(px,py,pz.proc) . Go to array[pp][i]...Dist
 			
 	}
 	
 }
 
-//This function finds neighbour processes and send them candidates for nearest neighbours (slices of points that have contact with those processes
+//This function finds neighbour processes and send their candidates for nearest neighbours (slices of points that have contact with those processes
 //Also receives as described above
 
 float *neighbours(point *arr,int counter[n][m][k],int n,int m,int k,int pnum,int *sendCout,int column,float *forSend){	
 	MPI_Request request,request0;
 	MPI_Status stats;
 	
-	int numtasks,i,j,jj,pntx,pnty,pntz,cout0,z0,pos,num;//Cout0 -Counter of current points in forSend array
+	int numtasks,i,j,jj,pntx,pnty,pntz,cout0,z0,pos,num;//Cout0 -Counter of current points considered as neigbour's property
 	float coordinates;
 	MPI_Comm_size(MPI_COMM_WORLD,&numtasks);
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
@@ -551,7 +540,7 @@ float *neighbours(point *arr,int counter[n][m][k],int n,int m,int k,int pnum,int
 
 					if((rank==1)&&(pntz==k/2)&&(getProc(pntx,pnty,pntz-1,numtasks,n,m,k)!=rank)){   //eimai sto 2o process se synoriako shmeio..Stelnw (rank-1)
 					num=sendCout[rank-1];
-					   //Store coordinates of neighbour point
+					   //Store coordinates of neighbour's point
 					forSend[((rank-1)*column)+num]=arr[i].x;forSend[(rank-1)*column+(num+1)]=arr[i].y;forSend[(rank-1)*column+(num+2)]=arr[i].z;			//in 32 bit register (10 bit for each coordinate in axis(x,y,z)
 			//		printf("%f in box %d ...\n",forSend[(rank-1)*column+(num+2)],pntz);
 					sendCout[0]+=3;
@@ -562,7 +551,7 @@ float *neighbours(point *arr,int counter[n][m][k],int n,int m,int k,int pnum,int
 				//	printf("%f in box %d ... IN PLACE %d .COLUMN=%d\n",forSend[column+(num+2)],pntz,column+num,column);
 					sendCout[1]+=3;
 					}	
-			} //endif numtasks=2
+			} 
 		
 		
 		}
